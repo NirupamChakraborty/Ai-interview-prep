@@ -1,0 +1,50 @@
+import axios from 'axios';
+
+const api = axios.create({
+    baseURL: "http://localhost:8005",
+    withCredentials: true,
+})
+
+export const generateInterviewReport = async ({jobDescription, selfDescription, resumeFile}) => { 
+    // when file is served from frontend, it is in the form of a File object. We need to convert it to FormData to send it to the backend
+    const formData = new FormData();
+    formData.append("jobDescription", jobDescription);
+    formData.append("selfDescription", selfDescription);
+    formData.append("resume", resumeFile);
+
+    const response = await api.post("/api/interview/", formData, {
+
+        headers: {
+            "Content-Type": "multipart/form-data"
+        }
+    })
+    return response.data;
+
+}
+
+
+
+export const getInterviewReportById = async (interviewId) => {
+    const response = await api.get(`/api/interview/report/${interviewId}`)
+
+    return response.data
+}
+
+
+export const getAllInterviewReports = async () => {
+    const response = await api.get("/api/interview/")
+
+    return response.data
+}
+
+
+/**
+ * @description Service to generate resume pdf based on user self description, resume content and job description.
+ */
+export const generateResumePdf = async ({ interviewReportId }) => {
+    const response = await api.post(`/api/interview/resume/pdf/${interviewReportId}`, null, {
+        responseType: "blob"
+    })
+
+    return response.data
+}
